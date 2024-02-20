@@ -78,10 +78,7 @@ class RestaurantCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Hero(
-          tag: name,
-          child: _getImage(),
-        ),
+        _getImage(),
         const SizedBox(
           height: 16,
         ),

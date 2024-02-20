@@ -3,7 +3,6 @@ import 'package:da_order/common/layout/default_layout.dart';
 import 'package:da_order/product/component/product_card.dart';
 import 'package:da_order/restaurant/component/restaurant_card.dart';
 import 'package:da_order/restaurant/model/restaurant_detail_model.dart';
-import 'package:da_order/restaurant/model/restaurant_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -47,12 +46,12 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                 child: CircularProgressIndicator(),
               );
             } else {
-              final item = RestaurantDetailModel.fromJson(json: snapshot.data!);
+              final item = RestaurantDetailModel.fromJson(snapshot.data!);
               return CustomScrollView(
                 slivers: [
                   _renderTop(model: item),
                   _renderLabel(),
-                  _renderProducts(),
+                  _renderProducts(products: item.products),
                 ],
               );
             }
@@ -70,7 +69,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
     );
   }
 
-  SliverPadding _renderProducts() {
+  SliverPadding _renderProducts({required List<RestaurantProductModel> products}) {
     return SliverPadding(
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       sliver: SliverList(
@@ -78,10 +77,10 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
           (context, index) {
             return Padding(
               padding: const EdgeInsets.only(top: 16.0),
-              child: ProductCard(),
+              child: ProductCard(product: products[index]),
             );
           },
-          childCount: 10,
+          childCount: products.length,
         ),
       ),
     );

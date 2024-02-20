@@ -1,8 +1,10 @@
 import 'package:da_order/common/const/colors.dart';
+import 'package:da_order/restaurant/model/restaurant_detail_model.dart';
 import 'package:flutter/material.dart';
 
 class ProductCard extends StatelessWidget {
-  const ProductCard({super.key});
+  final RestaurantProductModel product;
+  const ProductCard({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -11,8 +13,8 @@ class ProductCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
-              'asset/img/food/ddeok_bok_gi.jpg',
+            child: Image.network(
+              product.imgUrl,
               width: 110,
               height: 110,
               fit: BoxFit.cover,
@@ -27,14 +29,14 @@ class ProductCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '떡볶이',
+                  product.name,
                   style: TextStyle(
                     fontSize: 18.0,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 Text(
-                  '전통 떡볶이의 정석\n맛있습니다.aisdjfpoiasjdfpajsidfjaopisdjfiajpoi',
+                  product.detail,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,
                   style: TextStyle(
@@ -43,7 +45,7 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '10000 원',
+                  '${product.price} 원',
                   style: TextStyle(
                     color: PRIMARY_COLOR,
                     fontSize: 12.0,
