@@ -1,8 +1,10 @@
 import 'package:da_order/common/const/data.dart';
+import 'package:da_order/common/dio/dio.dart';
 import 'package:da_order/common/layout/default_layout.dart';
 import 'package:da_order/product/component/product_card.dart';
 import 'package:da_order/restaurant/component/restaurant_card.dart';
 import 'package:da_order/restaurant/model/restaurant_detail_model.dart';
+import 'package:da_order/restaurant/repository/restaurant_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -18,20 +20,14 @@ class RestaurantDetailScreen extends StatefulWidget {
 class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
   String title = '상세 페이지';
 
-  Future<Map<String, dynamic>> _getRestaurantDetail() async {
-    final accessToken = await storage.read(key: ACCESS_TOKEN_KEY);
+  Future<RestaurantDetailModel> _getRestaurantDetail() async {
     final dio = Dio();
+    dio.interceptors.add(CustomInterceptor(storage: storage));
 
-    final response = await dio.get('http://$ip/restaurant/${widget.id}',
-        options: Options(
-          headers: {'authorization': 'Bearer $accessToken'},
-        ));
+    final repository =
+        RestaurantRepository(dio, baseUrl: 'http://$ip/restaurant');
 
-    setState(() {
-      title = response.data['name'];
-    });
-
-    return response.data;
+    return repository.getRestaurantDetail(id: widget.id);
   }
 
   @override
@@ -40,13 +36,18 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
         title: title,
         child: FutureBuilder(
           future: _getRestaurantDetail(),
-          builder: (_, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+          builder: (_, AsyncSnapshot<RestaurantDetailModel> snapshot) {
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(snapshot.error.toString()),
+              );
+            }
             if (!snapshot.hasData) {
               return Center(
                 child: CircularProgressIndicator(),
               );
             } else {
-              final item = RestaurantDetailModel.fromJson(snapshot.data!);
+              final item = snapshot.data!;
               return CustomScrollView(
                 slivers: [
                   _renderTop(model: item),
@@ -69,7 +70,8 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
     );
   }
 
-  SliverPadding _renderProducts({required List<RestaurantProductModel> products}) {
+  SliverPadding _renderProducts(
+      {required List<RestaurantProductModel> products}) {
     return SliverPadding(
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       sliver: SliverList(
